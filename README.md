@@ -2,6 +2,10 @@
 
 # Extreme Compute Reduction via Neuro-Symbolic Hybrid Architecture and Logic Distillation: Engineering Implementation on Consumer Hardware
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23090915.svg)](https://doi.org/10.5281/zenodo.23090915)
+
+> **Note:** The initial preprint paper is now available on Zenodo. We are continuously refining the document and will release subsequent versions.
+
 ## Abstract
 As Large Language Models (LLMs) evolve according to scaling laws, the compute consumption and memory wall bottlenecks in complex logical reasoning tasks become increasingly prominent. Particularly on resource-constrained consumer hardware (e.g., 12GB VRAM GPUs), maintaining high-concurrency logical inference is difficult to achieve through pure neural network architectures. This paper proposes a decoupled Neuro-Symbolic Architecture that physically isolates non-deterministic semantic parsing from deterministic logical operations via an "LLM Intent Routing + Symbolic Engine Execution" paradigm. For closed-domain logic scenarios, we further propose a "Logic-to-Tree Distillation" method, which exhausts the state space through orthogonal experimental design to downgrade and compile the LLM's deductive capabilities into static decision trees. Theoretical analysis and preliminary system implementation demonstrate that, while ensuring 100% deterministic accuracy in logical reasoning, this architecture reduces runtime GPU compute overhead by over 90% and completely eliminates the Out-Of-Memory (OOM) risks associated with Key-Value (KV) Cache expansion in long logical chains.
 
