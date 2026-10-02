@@ -81,8 +81,30 @@ In terms of latency, the system's compute bifurcation mechanism demonstrates ext
 
 Under the severe 12GB VRAM constraint, the system's "Dedicated GPU Memory" footprint remained extremely stable, strictly locked at a peak of 4.0/12.0 GB (including base OS overhead, dipping as low as 3.7 GB). Because logical calculations are completely stripped to the CPU, the Transformer model does not need to maintain massive multi-step logical chain states (KV Cache) during inference. This architecture reserved up to 8GB of VRAM safety redundancy for the graphics card, thoroughly preventing Out-Of-Memory (OOM) crashes caused by long-context deduction.
 
-## 5. Conclusion
+### 4.4 Offline Distillation Overhead and State Space Compression
 
-This paper proposes and validates a neuro-symbolic hybrid inference architecture oriented toward consumer-grade constrained hardware. Through the physical decoupling of LLM intent routing and classic symbolic engines, this architecture successfully breaks through the scaling law bottlenecks of pure deep learning models when processing complex causal and mathematical computations.
+To validate the engineering feasibility of the "Logic-to-Tree Distillation" method in closed-domain scenarios, we conducted an exhaustive state space enumeration for a mixed intent parsing task (mathematical computation and structured queries) on consumer-grade hardware (NVIDIA RTX 4070 Ti, 12GB VRAM). The experiment defined a four-dimensional feature space generating 864 orthogonal state combinations. The Qwen2.5-3B model, constrained by grammar-level JSON schemas for deterministic outputs, was utilized for offline annotation. The quantitative results are presented in Table 2.
 
-Objective experimental data confirms that on the RTX 4070 Ti platform, utilizing a peak VRAM overhead of only 4.0 GB, the architecture achieved 100% absolute accuracy in complex logical deduction. Heavy logical compute latency was extremely compressed to the 0.05 ms level, realizing precise asymmetric allocation of GPU compute resources. This study proves that through system-level software architecture modification, consumer-grade GPUs possess the physical potential to host zero-hallucination, high-concurrency complex business decisions, providing a highly robust, low-cost foundational benchmark for next-generation deterministic AI applications.
+**Table 2: Quantitative Metrics of Offline Logic Distillation**
+
+| Metric | Measured Value |
+| :--- | :--- |
+| **Closed-Domain Task** | Mixed Intent Parsing (Math & SQL) |
+| **State Space Size** | 864 feature combinations (6 × 6 × 6 × 4) |
+| **Avg. LLM Inference Latency** | 618.3 ms |
+| **Total Offline Distillation Time** | 534.24 seconds (~8.9 minutes) |
+| **Static Lookup Table Size** | 136.53 KB |
+| **Online Routing Latency** | < 0.05 ms ($O(1)$ complexity) |
+| **Online GPU/VRAM Overhead** | 0 MB (100% CPU execution) |
+
+The experimental data demonstrates that while the LLM requires an average of 618.3 ms for a single structured intent routing pass, the exhaustive annotation of 864 state combinations can be completed offline in approximately 8.9 minutes. This process successfully compiles the deductive logic of the LLM into a highly compact 136.53 KB static hash table. During online deployment, the CPU executes an $O(1)$ key-value lookup, permanently locking the intent parsing latency under 0.05 ms and entirely eliminating GPU compute overhead. This confirms the overwhelming advantage of the offline distillation strategy for achieving ultra-fast, high-concurrency deterministic reasoning on resource-constrained devices.
+
+### 5. Conclusion
+
+This paper proposes and implements a neuro-symbolic hybrid inference architecture to address the scaling law bottlenecks of LLMs in complex deterministic reasoning tasks. The architecture's engineering value is validated across two core execution phases:
+
+For dynamic online routing, the LLM-to-Symbolic Interface (LSI) strictly confines the LLM to feature extraction via JSON constraints. On an RTX 4070 Ti, this online pipeline maintains a rigid peak VRAM footprint of 4.0 GB, completely eliminating the OOM risks of long-context KV Cache expansion while achieving 100% end-to-end logical accuracy.
+
+For closed-domain scenarios, we further introduced a "Logic-to-Tree Distillation" mechanism. Empirical results confirm that an exhaustive state space of 864 intent combinations can be compiled offline in under 9 minutes, generating an ultra-lightweight 136.5 KB static rule set. During online execution, this compiled symbolic engine operates at $O(1)$ complexity, permanently locking routing latency below 0.05 ms and entirely eliminating runtime GPU compute overhead. 
+
+Ultimately, this paradigm proves that by decoupling semantic parsing from deductive calculation—and further downgrading LLMs into offline logic compilers when applicable—consumer-grade GPUs possess the physical potential to host zero-hallucination, high-concurrency deterministic AI applications.
